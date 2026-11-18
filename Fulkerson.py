@@ -30,7 +30,7 @@ c = {
 
 flot = {
     ('A', 'B'): 11,
-    ('A', 'C'): 8,
+    ('A', 'C'): 12,
     ('B', 'D'): 12,
     ('C', 'B'): 1,
     ('C', 'E'): 11,
@@ -66,8 +66,9 @@ def FordFulkerson(G, source, puits):
 
     while chemin is not None:
 
-        # capacite_min = capaciteMinimumChemin(G_f, chemin)
-        # flot = flotChemin(chemin, capacite_min)
+        chemin, _ = chemin
+        chemin = [(chemin[i], chemin[i + 1]) for i in range(len(chemin) -1)]
+
         flot = augmenterFlot(flot, chemin)
         G_f = mettreAjourResiduel(G_f, chemin)
         chemin = cheminAugmentant(G_f, source, puits)
@@ -96,7 +97,7 @@ def mettreAjourResiduel(G_f, chemin):
 
         # Arcs saturés
         if c_f[(u,v)] == 0:
-            A_f[(u,v)].remove((u,v))
+            A_f.remove((u,v))
             del c_f[(u,v)]
 
         # On ajoute un arc inversé pour les chemin dont la valeur de capacité n'est pas min
@@ -122,7 +123,8 @@ def augmenterFlot(flot, chemin):
 
 
 def voisin(G, u):
-    return [v for (x,v) in G if u == x]
+    _, A, _ = G
+    return [v for (x,v) in A if u == x]
 
 def plus_court_chemin(G, u, v):
     parent = {u:u}
@@ -141,11 +143,14 @@ def plus_court_chemin(G, u, v):
     return reconstuire_chemin(u,v,parent), dist[v]
 
 
-def reconstuire_chemin(u, v, parent):
-    chemin = []
-    while v != u:
-        u = parent[v]
-        chemin.insert(0, (u, v))
-        v = u
+def reconstuire_chemin( u, v, parent):
+    res = []
+    arrivee = v
+    while arrivee != u:
+        res.insert(0, arrivee)
+        arrivee = parent[arrivee]
+    res.insert(0, u)
+    return res
 
-    return chemin
+
+print(FordFulkerson(G, 'A', 'F'))
